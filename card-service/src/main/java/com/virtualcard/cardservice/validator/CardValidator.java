@@ -12,7 +12,7 @@ import com.virtualcard.common.lang.BigDecimalUtils;
 import lombok.extern.log4j.Log4j2;
 
 /**
- * @author lex_looter
+ * @author Lorenzo Leccese
  *
  *         8 giu 2025
  *
@@ -21,8 +21,12 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class CardValidator {
 
-	/*
-	 * Checks that the given card isn't blocked
+	/**
+	 * Determines if a card is valid based on its status.
+	 * A card is considered invalid if its status is BLOCKED.
+	 *
+	 * @param cardId the unique identifier of the card being validated
+	 * @return a {@code Predicate} that evaluates whether a {@code CardDTO} instance is valid
 	 */
 	public Predicate<? super CardDTO> isCardValid(final String cardId) {
 		return cardDTO -> {
@@ -34,8 +38,12 @@ public class CardValidator {
 		};
 	}
 
-	/*
-	 * Checks that the given card can spend the specified amount of money
+	/**
+	 * Determines if a specified card can afford a given amount based on its balance.
+	 *
+	 * @param cardId the unique identifier of the card
+	 * @param amount the amount to check if it can be afforded by the card
+	 * @return a predicate that evaluates if the card has sufficient balance for the specified amount
 	 */
 	public Predicate<? super CardDTO> canAfford(final String cardId, final BigDecimal amount) {
 		return cardDTO -> {

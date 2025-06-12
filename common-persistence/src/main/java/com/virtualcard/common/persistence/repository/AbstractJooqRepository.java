@@ -5,7 +5,7 @@ import org.jooq.DSLContext;
 import lombok.RequiredArgsConstructor;
 
 /**
- * @author lex_looter
+ * @author Lorenzo Leccese
  *
  *         12 giu 2025
  *

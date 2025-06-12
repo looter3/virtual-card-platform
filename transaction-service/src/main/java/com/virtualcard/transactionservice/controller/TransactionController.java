@@ -9,20 +9,21 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jooq.generated.tables.pojos.TransactionDTO;
 import com.virtualcard.common.request.CreateTransactionRequest;
+import com.virtualcard.transactionservice.pagination.PagedTransactionResponse;
 import com.virtualcard.transactionservice.service.TransactionService;
 
 import lombok.RequiredArgsConstructor;
 
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * @author lex_looter
+ * @author Lorenzo Leccese
  *
  *         8 giu 2025
  *
@@ -35,8 +36,11 @@ public class TransactionController {
 	private final TransactionService transactionService;
 
 	@GetMapping(ID)
-	public Flux<TransactionDTO> getTransactions(@PathVariable final String cardId) {
-		return transactionService.getTransactions(cardId);
+	public Mono<PagedTransactionResponse> getTransactionsByCardId(
+			@PathVariable("id") final String cardId,
+			@RequestParam(defaultValue = "0") final int page,
+			@RequestParam(defaultValue = "20") final int size) {
+		return transactionService.getTransactionsByCardId(cardId, page, size);
 	}
 
 	@PostMapping

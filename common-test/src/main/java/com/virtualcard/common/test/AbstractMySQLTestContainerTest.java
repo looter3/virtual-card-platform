@@ -18,7 +18,7 @@ import org.testcontainers.containers.MySQLContainer;
 import lombok.extern.log4j.Log4j2;
 
 /**
- * @author lex_looter
+ * @author Lorenzo Leccese
  *
  *         9 giu 2025
  *

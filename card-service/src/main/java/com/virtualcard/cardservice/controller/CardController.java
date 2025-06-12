@@ -28,7 +28,7 @@ import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
 /**
- * @author lex_looter
+ * @author Lorenzo Leccese
  *
  *         7 giu 2025
  *
@@ -40,6 +40,13 @@ public class CardController {
 
 	private final CardService cardService;
 
+	/**
+	 * Handles the creation of a new card by delegating the request to the card service.
+	 *
+	 * @param cardRequestMono a {@link Mono} emitting the {@link CardRequest} object containing the cardholder's name
+	 *                        and the initial balance for the card to be created
+	 * @return a {@link Mono} that completes when the card creation process is finished
+	 */
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
 	public Mono<Void> createCard(@RequestBody final Mono<CardRequest> cardRequestMono) {
@@ -47,16 +54,36 @@ public class CardController {
 			.flatMap(req -> cardService.createCard(req.cardholderName(), req.initialBalance()));
 	}
 
+	/**
+	 * Retrieves a valid card based on the provided identifier.
+	 *
+	 * @param id the unique identifier of the card to be retrieved
+	 * @return a {@code Mono<CardDTO>} containing the details of the valid card
+	 */
 	@GetMapping(ID)
 	public Mono<CardDTO> getCard(@PathVariable final String id) {
 		return cardService.getValidCard(id);
 	}
 
+	/**
+	 * Retrieves a covered card based on the given card ID and amount.
+	 *
+	 * @param id the unique identifier of the card
+	 * @param amount the amount that the card should cover
+	 * @return a Mono emitting the CardDTO object representing the covered card
+	 */
 	@GetMapping(GET_COVERED_CARD_MAPPING)
 	public Mono<CardDTO> getCoveredCard(@PathVariable final String id, @RequestParam final BigDecimal amount) {
 		return cardService.getValidCoveredCard(id, amount);
 	}
 
+	/**
+	 * Updates the balance of a card specified by its unique identifier.
+	 *
+	 * @param id the unique identifier of the card whose balance needs to be updated
+	 * @param request the request containing the new balance to be set for the card
+	 * @return a Mono signaling when the update operation has completed
+	 */
 	@PutMapping(UPDATE_BALANCE_MAPPING)
 	public Mono<Void> updateBalance(@PathVariable final String id, @RequestBody final UpdateBalanceRequest request) {
 		return cardService.updateBalance(id, request.newBalance());

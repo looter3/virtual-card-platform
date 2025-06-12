@@ -13,7 +13,7 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 
 /**
- * @author lex_looter
+ * @author Lorenzo Leccese
  *
  *         11 giu 2025
  *
@@ -21,12 +21,18 @@ import io.swagger.v3.oas.models.info.Info;
 @Configuration
 public class CardServiceConfiguration {
 
+	/**
+	 * Configures and provides a DSLContext bean for interacting with a MySQL database using jOOQ.
+	 *
+	 * @param dataSource the DataSource to be used for database connections
+	 * @return a configured DSLContext instance for executing SQL queries
+	 */
 	@Bean
 	DSLContext dslContext(final DataSource dataSource) {
 		return DSL.using(dataSource, SQLDialect.MYSQL,
 				new Settings()
-					.withExecuteWithOptimisticLocking(true) // Enables optimistic locking
-					.withUpdateRecordVersion(true)); // Ensures version field is updated
+					.withExecuteWithOptimisticLocking(true)
+					.withUpdateRecordVersion(true));
 	}
 
 	@Bean

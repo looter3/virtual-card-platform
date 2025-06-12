@@ -1,7 +1,7 @@
 package com.virtualcard.common.lang;
 
 /**
- * @author lex_looter
+ * @author Lorenzo Leccese
  *
  *         10 giu 2025
  *

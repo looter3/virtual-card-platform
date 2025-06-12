@@ -3,7 +3,7 @@ package com.virtualcard.common.request;
 import java.math.BigDecimal;
 
 /**
- * @author lex_looter
+ * @author Lorenzo Leccese
  *
  *         8 giu 2025
  *

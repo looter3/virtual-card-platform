@@ -4,7 +4,7 @@ import org.jooq.codegen.DefaultGeneratorStrategy;
 import org.jooq.meta.Definition;
 
 /**
- * @author lex_looter
+ * @author Lorenzo Leccese
  *
  *         7 giu 2025
  *

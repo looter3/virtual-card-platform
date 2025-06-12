@@ -17,15 +17,13 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * @author lex_looter
+ * @author Lorenzo Leccese
  *
  *         8 giu 2025
  *
  */
 @Repository
 public class TransactionRepository extends AbstractJooqRepository {
-
-//	private final DSLContext dsl;
 
 	public TransactionRepository(final DSLContext dsl) {
 		super(dsl);
@@ -53,13 +51,21 @@ public class TransactionRepository extends AbstractJooqRepository {
 			.fetchOneInto(TransactionDTO.class));
 	}
 
-	// Custom
-	public Flux<TransactionDTO> getTransactionsByCardId(final String cardId) {
+	public Flux<TransactionDTO> getTransactionsByCardId(final String cardId, final int offset, final int limit) {
 		return Flux.fromIterable(
 				dsl.selectFrom(TRANSACTION)
 					.where(TRANSACTION.CARDID.eq(cardId))
 					.orderBy(TRANSACTION.CREATEDAT.desc())
+					.limit(limit)
+					.offset(offset)
 					.fetchInto(TransactionDTO.class));
+	}
+
+	public Mono<Integer> getTransactionCountByCardId(final String cardId) {
+		return Mono.fromCallable(() -> dsl.selectCount()
+			.from(TRANSACTION)
+			.where(TRANSACTION.CARDID.eq(cardId))
+			.fetchOne(0, int.class));
 	}
 
 }

@@ -3,7 +3,7 @@ package com.virtualcard.common.lang;
 import static com.virtualcard.common.lang.LangConstants.SLASH;
 
 /**
- * @author lex_looter
+ * @author Lorenzo Leccese
  *
  *         8 giu 2025
  *

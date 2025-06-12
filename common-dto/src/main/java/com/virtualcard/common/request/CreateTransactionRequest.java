@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 import com.jooq.generated.enums.TransactionType;
 
 /**
- * @author lex_looter
+ * @author Lorenzo Leccese
  *
  *         8 giu 2025
  *

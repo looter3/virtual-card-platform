@@ -1,7 +1,7 @@
 package com.virtualcard.common.error;
 
 /**
- * @author lex_looter
+ * @author Lorenzo Leccese
  *
  *         12 giu 2025
  *

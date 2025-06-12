@@ -20,15 +20,17 @@
   </properties>
   
   <modules>
+  	<!-- Services -->
     <module>card-aggregate-service</module>
     <module>card-service</module>
+    <module>transaction-service</module>
     <module>discovery-server</module>
+    <!-- Common utils -->
     <module>common-dto</module>
     <module>common-persistence</module>
     <module>common-error</module>
     <module>common-lang</module>
     <module>common-test</module>
-    <module>transaction-service</module>
   </modules>
   
   <dependencies>

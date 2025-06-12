@@ -3,7 +3,7 @@ package com.virtualcard.card_aggregate.configuration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * @author lex_looter
+ * @author Lorenzo Leccese
  *
  *         11 giu 2025
  *

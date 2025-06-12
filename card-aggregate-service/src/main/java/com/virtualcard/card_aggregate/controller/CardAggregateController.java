@@ -21,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
 /**
- * @author lex_looter
+ * @author Lorenzo Leccese
  *
  *         7 giu 2025
  *
@@ -33,12 +33,26 @@ public class CardAggregateController {
 
 	private final CardAggregateIntegrationService integrationService;
 
+	/**
+	 * Processes a spend request for a specific card and deducts the specified amount.
+	 *
+	 * @param cardId the unique identifier of the card to process the spend request.
+	 * @param amount the amount to be deducted from the card's balance.
+	 * @return a {@code Mono<BigDecimal>} representing the updated balance after the spend operation is completed.
+	 */
 	@PostMapping(SPEND_MAPPING)
 	@ResponseStatus(HttpStatus.CREATED)
 	public Mono<BigDecimal> spend(@PathVariable("id") final String cardId, @RequestBody final BigDecimal amount) {
 		return integrationService.spend(cardId, amount);
 	}
 
+	/**
+	 * Handles the top-up operation for the card with the specified card ID and amount.
+	 *
+	 * @param cardId the ID of the card to be topped up
+	 * @param amount the amount to top up on the card
+	 * @return a Mono emitting the new balance of the card after the top-up has been successfully processed
+	 */
 	@PostMapping(TOPUP_MAPPING)
 	@ResponseStatus(HttpStatus.CREATED)
 	public Mono<BigDecimal> topup(@PathVariable("id") final String cardId, @RequestBody final BigDecimal amount) {

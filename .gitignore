@@ -1,0 +1,58 @@
+# Maven target directory
+/target/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# Eclipse
+.project
+.classpath
+.settings/
+bin/
+
+# VS Code
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment and config
+.env
+*.local
+*.properties
+*.yml
+*.yaml
+
+# Testcontainers
+**/testcontainers.properties
+
+# JOOQ generated code (optional: if generated at build time)
+**/generated-jooq/**
+
+# Maven
+.mvn/
+!/.mvn/wrapper/maven-wrapper.jar
+
+# Temporary files
+*.tmp
+*.swp
+*.bak
+
+# Build tools
+dependency-reduced-pom.xml
+release.properties
+
+# Git
+*.orig
+
+# Docker
+docker-compose.override.yml
+

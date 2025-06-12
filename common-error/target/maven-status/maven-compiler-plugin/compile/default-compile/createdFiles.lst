@@ -1,0 +1,6 @@
+com/virtualcard/common/error/EventProcessingException.class
+com/virtualcard/common/error/NotFoundException.class
+com/virtualcard/common/error/VirtualCardPlatformException.class
+com/virtualcard/common/error/RateLimitExceededException.class
+com/virtualcard/common/error/HttpErrorInfo.class
+com/virtualcard/common/error/InvalidInputException.class

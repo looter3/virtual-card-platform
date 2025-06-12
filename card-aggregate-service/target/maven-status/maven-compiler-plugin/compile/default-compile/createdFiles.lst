@@ -1,0 +1,7 @@
+com/virtualcard/card_aggregate/configuration/CardAggregateConfiguration.class
+com/virtualcard/card_aggregate/controller/CardAggregateController.class
+com/virtualcard/card_aggregate/service/CardAggregateIntegrationService$1.class
+com/virtualcard/card_aggregate/controller/GlobalExceptionHandler.class
+com/virtualcard/card_aggregate/App.class
+com/virtualcard/card_aggregate/service/CardAggregateIntegrationService.class
+com/virtualcard/card_aggregate/configuration/IntegrationProperties.class

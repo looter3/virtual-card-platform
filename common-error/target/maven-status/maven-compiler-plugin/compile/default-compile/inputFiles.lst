@@ -1,0 +1,6 @@
+/home/lex_looter/Programming/Java/Projects/vcp-workspace/virtual-card-platform/common-error/src/main/java/com/virtualcard/common/error/EventProcessingException.java
+/home/lex_looter/Programming/Java/Projects/vcp-workspace/virtual-card-platform/common-error/src/main/java/com/virtualcard/common/error/HttpErrorInfo.java
+/home/lex_looter/Programming/Java/Projects/vcp-workspace/virtual-card-platform/common-error/src/main/java/com/virtualcard/common/error/InvalidInputException.java
+/home/lex_looter/Programming/Java/Projects/vcp-workspace/virtual-card-platform/common-error/src/main/java/com/virtualcard/common/error/NotFoundException.java
+/home/lex_looter/Programming/Java/Projects/vcp-workspace/virtual-card-platform/common-error/src/main/java/com/virtualcard/common/error/RateLimitExceededException.java
+/home/lex_looter/Programming/Java/Projects/vcp-workspace/virtual-card-platform/common-error/src/main/java/com/virtualcard/common/error/VirtualCardPlatformException.java

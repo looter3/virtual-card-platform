@@ -1,0 +1,15 @@
+/home/lex_looter/Programming/Java/Projects/vcp-workspace/virtual-card-platform/common-persistence/src/main/java/com/virtualcard/common/persistence/repository/AbstractJooqRepository.java
+/home/lex_looter/Programming/Java/Projects/vcp-workspace/virtual-card-platform/common-persistence/src/main/java/com/virtualcard/common/persistence/strategy/DtoSuffixStrategy.java
+/home/lex_looter/Programming/Java/Projects/vcp-workspace/virtual-card-platform/common-persistence/target/generated-sources/jooq/com/jooq/generated/CardSystem.java
+/home/lex_looter/Programming/Java/Projects/vcp-workspace/virtual-card-platform/common-persistence/target/generated-sources/jooq/com/jooq/generated/DefaultCatalog.java
+/home/lex_looter/Programming/Java/Projects/vcp-workspace/virtual-card-platform/common-persistence/target/generated-sources/jooq/com/jooq/generated/Indexes.java
+/home/lex_looter/Programming/Java/Projects/vcp-workspace/virtual-card-platform/common-persistence/target/generated-sources/jooq/com/jooq/generated/Keys.java
+/home/lex_looter/Programming/Java/Projects/vcp-workspace/virtual-card-platform/common-persistence/target/generated-sources/jooq/com/jooq/generated/Tables.java
+/home/lex_looter/Programming/Java/Projects/vcp-workspace/virtual-card-platform/common-persistence/target/generated-sources/jooq/com/jooq/generated/enums/CardStatus.java
+/home/lex_looter/Programming/Java/Projects/vcp-workspace/virtual-card-platform/common-persistence/target/generated-sources/jooq/com/jooq/generated/enums/TransactionType.java
+/home/lex_looter/Programming/Java/Projects/vcp-workspace/virtual-card-platform/common-persistence/target/generated-sources/jooq/com/jooq/generated/tables/Card.java
+/home/lex_looter/Programming/Java/Projects/vcp-workspace/virtual-card-platform/common-persistence/target/generated-sources/jooq/com/jooq/generated/tables/Transaction.java
+/home/lex_looter/Programming/Java/Projects/vcp-workspace/virtual-card-platform/common-persistence/target/generated-sources/jooq/com/jooq/generated/tables/pojos/CardDTO.java
+/home/lex_looter/Programming/Java/Projects/vcp-workspace/virtual-card-platform/common-persistence/target/generated-sources/jooq/com/jooq/generated/tables/pojos/TransactionDTO.java
+/home/lex_looter/Programming/Java/Projects/vcp-workspace/virtual-card-platform/common-persistence/target/generated-sources/jooq/com/jooq/generated/tables/records/CardRecord.java
+/home/lex_looter/Programming/Java/Projects/vcp-workspace/virtual-card-platform/common-persistence/target/generated-sources/jooq/com/jooq/generated/tables/records/TransactionRecord.java

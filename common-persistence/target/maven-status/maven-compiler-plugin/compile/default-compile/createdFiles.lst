@@ -1,0 +1,15 @@
+com/jooq/generated/enums/TransactionType.class
+com/jooq/generated/tables/Transaction.class
+com/jooq/generated/Indexes.class
+com/jooq/generated/enums/CardStatus.class
+com/jooq/generated/tables/Card.class
+com/jooq/generated/DefaultCatalog.class
+com/jooq/generated/CardSystem.class
+com/jooq/generated/Keys.class
+com/jooq/generated/tables/pojos/CardDTO.class
+com/jooq/generated/tables/Transaction$TransactionPath.class
+com/jooq/generated/Tables.class
+com/jooq/generated/tables/records/TransactionRecord.class
+com/jooq/generated/tables/records/CardRecord.class
+com/jooq/generated/tables/Card$CardPath.class
+com/jooq/generated/tables/pojos/TransactionDTO.class

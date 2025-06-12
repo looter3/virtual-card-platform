@@ -1,0 +1,6 @@
+/home/lex_looter/Programming/Java/Projects/vcp-workspace/virtual-card-platform/card-aggregate-service/src/main/java/com/virtualcard/card_aggregate/App.java
+/home/lex_looter/Programming/Java/Projects/vcp-workspace/virtual-card-platform/card-aggregate-service/src/main/java/com/virtualcard/card_aggregate/configuration/CardAggregateConfiguration.java
+/home/lex_looter/Programming/Java/Projects/vcp-workspace/virtual-card-platform/card-aggregate-service/src/main/java/com/virtualcard/card_aggregate/configuration/IntegrationProperties.java
+/home/lex_looter/Programming/Java/Projects/vcp-workspace/virtual-card-platform/card-aggregate-service/src/main/java/com/virtualcard/card_aggregate/controller/CardAggregateController.java
+/home/lex_looter/Programming/Java/Projects/vcp-workspace/virtual-card-platform/card-aggregate-service/src/main/java/com/virtualcard/card_aggregate/controller/GlobalExceptionHandler.java
+/home/lex_looter/Programming/Java/Projects/vcp-workspace/virtual-card-platform/card-aggregate-service/src/main/java/com/virtualcard/card_aggregate/service/CardAggregateIntegrationService.java

@@ -1,6 +1,8 @@
 # Maven target directory
 **/target/
 *.jar
+**/mvnw
+**/mvnw.cmd
 
 # IntelliJ IDEA
 .idea/

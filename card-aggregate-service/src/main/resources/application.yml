@@ -1,0 +1,67 @@
+
+# Spring
+spring:
+  application:
+    name: card-aggregate-service
+#  data:
+
+# Spring doc config
+springdoc:
+  packagesToScan: com.virtualcard.card_aggregate
+  pathsToMatch: /**
+  
+api:
+  common:
+    version: 1.0.0
+    title: Card Aggregate API
+    description: API for managing card operations like spending and topping up
+    termsOfService: https://example.com/terms
+    license: MIT
+    licenseUrl: https://opensource.org/licenses/MIT
+    externalDocDesc: Full Card API Docs
+    externalDocUrl: https://example.com/docs/card-aggregate
+    contact:
+      name: Card API Support
+      url: https://example.com/contact
+      email: support@example.com
+
+  responseCodes:
+    created:
+      description: Resource successfully created
+    badRequest:
+      description: Invalid input format or missing parameters
+    notFound:
+      description: Card ID not found
+    conflict:
+      description: Conflict occurred while processing the transaction
+
+  card-aggregate:
+    spend:
+      description: Deduct a specific amount from the specified card
+      notes: Ensure the card ID is valid and the balance is sufficient for the transaction.
+    topup:
+      description: Add a specific amount to the specified card
+      notes: Use this endpoint to increase the card's balance.
+
+
+# Local server config
+server:
+  port: 8005
+  error.include-message: always
+  
+app.eureka-server: localhost
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://${app.eureka-server}:8761/eureka/
+    initialInstanceInfoReplicationIntervalSeconds: 5
+    registryFetchIntervalSeconds: 5
+  instance:
+    leaseRenewalIntervalInSeconds: 5
+    leaseExpirationDurationInSeconds: 5
+    
+# Integration
+integration:
+  cardServiceBaseUrl: http://card-service
+  transactionServiceBaseUrl: http://transaction-service

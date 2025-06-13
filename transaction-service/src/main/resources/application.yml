@@ -1,0 +1,33 @@
+
+# Spring
+spring:
+  application:
+    name: transaction-service
+  datasource:
+    url: jdbc:mysql://localhost:3306/card_system
+    username: root
+    password: my-secret-pw
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+# Spring doc config
+springdoc:
+  packagesToScan: com.virtualcard.transactionservice
+  pathsToMatch: /**
+
+# Local server config
+server:
+  port: 8001
+  error.include-message: always
+  
+# Eureka
+app.eureka-server: localhost
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://${app.eureka-server}:8761/eureka/
+    initialInstanceInfoReplicationIntervalSeconds: 5
+    registryFetchIntervalSeconds: 5
+  instance:
+    leaseRenewalIntervalInSeconds: 5
+    leaseExpirationDurationInSeconds: 5

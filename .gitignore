@@ -1,5 +1,6 @@
 # Maven target directory
-/target/
+**/target/
+*.jar
 
 # IntelliJ IDEA
 .idea/
@@ -27,9 +28,6 @@ Thumbs.db
 # Environment and config
 .env
 *.local
-*.properties
-*.yml
-*.yaml
 
 # Testcontainers
 **/testcontainers.properties

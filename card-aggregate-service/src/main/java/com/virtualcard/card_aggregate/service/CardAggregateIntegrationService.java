@@ -12,7 +12,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -20,11 +19,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
-import com.jooq.generated.enums.TransactionType;
-import com.jooq.generated.tables.pojos.CardDTO;
 import com.virtualcard.card_aggregate.configuration.IntegrationProperties;
+import com.virtualcard.common.dto.CardDTO;
+import com.virtualcard.common.enums.TransactionType;
 import com.virtualcard.common.error.InvalidInputException;
 import com.virtualcard.common.error.RateLimitExceededException;
+import com.virtualcard.common.request.BalanceOperationRequest;
 import com.virtualcard.common.request.CreateTransactionRequest;
 import com.virtualcard.common.request.UpdateBalanceRequest;
 
@@ -32,6 +32,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotFoundException;
 import reactor.core.publisher.Mono;
 
@@ -53,7 +54,7 @@ public class CardAggregateIntegrationService {
 
 	/**
 	 * A thread-safe map that tracks the spend counts for each card on a per-minute basis.
-	 * The keys represent card identifiers (e.g., cardId), and the values are {@link AtomicInteger} instances
+	 * The keys represent card numbers (e.g., code), and the values are {@link AtomicInteger} instances
 	 * that record the number of spend operations attempted for the corresponding card.
 	 *
 	 * This variable is used to enforce a rate limit on spending operations. If a card exceeds
@@ -76,7 +77,7 @@ public class CardAggregateIntegrationService {
 	 * 1. Fetches and assigns the base URL for the card service from `integrationProperties`.
 	 * 2. Fetches and assigns the base URL for the transaction service from `integrationProperties`.
 	 * 3. Sets up a scheduled task using a single-threaded executor to reset spend counters in
-	 *    `spendCounters` map every minute.
+	 * `spendCounters` map every minute.
 	 */
 	@PostConstruct
 	private void init() {
@@ -89,109 +90,102 @@ public class CardAggregateIntegrationService {
 				1, 1, TimeUnit.MINUTES);
 	}
 
-	/**
-	 * Performs a spend operation on the specified card by deducting the specified amount from its balance.
-	 * The method enforces a rate limit of a maximum of 5 spends per minute for each card.
-	 *
-	 * @param cardId the unique identifier of the card on which the spend operation is to be performed
-	 * @param amount the monetary amount to be spent from the card's balance
-	 * @return a {@link Mono} emitting the updated balance of the card upon a successful operation,
-	 *         or an error if the operation fails (e.g., rate limit exceeded or insufficient balance)
-	 */
-	public Mono<BigDecimal> spend(final String cardId, final BigDecimal amount) {
-		final AtomicInteger counter = spendCounters.computeIfAbsent(cardId, k -> new AtomicInteger(0));
+	public Mono<Void> balanceOperation(final BalanceOperationRequest req) {
+
+		final String senderCardCode = req.senderCardNumber();
+		final String recipientCardCode = req.recipientCardNumber();
+		final BigDecimal amount = req.amount();
+
+		// Rate limit check
+		final AtomicInteger counter = spendCounters.computeIfAbsent(senderCardCode, k -> new AtomicInteger(0));
 		if (counter.incrementAndGet() > MAX_SPENDS_PER_MINUTE) {
-			return Mono.error(new RateLimitExceededException("Max 5 spends per minute exceeded for card " + cardId));
-		}
-		return balanceOperation(cardId, amount, TransactionType.SPEND)
-			.doOnError(e -> counter.decrementAndGet()); // rollback count on failure
-	}
-
-	/**
-	 * Adds the specified amount to the balance of the card identified by the given card ID.
-	 *
-	 * @param cardId the unique identifier of the card to which the balance will be credited
-	 * @param amount the amount to be added to the card's balance
-	 * @return a {@link Mono} emitting the new balance after the top-up operation is successfully completed
-	 */
-	public Mono<BigDecimal> topup(final String cardId, final BigDecimal amount) {
-		return balanceOperation(cardId, amount, TransactionType.TOPUP);
-	}
-
-	/**
-	 * Adjusts the balance of a card based on the specified transaction type (e.g., spend or top-up).
-	 *
-	 * @param cardId the unique identifier of the card
-	 * @param amount the transaction amount to be spent or added
-	 * @param type the type of transaction, either SPEND or TOPUP
-	 * @return a {@code Mono<BigDecimal>} representing the updated balance of the card after the operation
-	 * @throws IllegalArgumentException if the transaction type is unsupported
-	 * @throws NotFoundException if the card does not exist, is blocked, or has insufficient balance
-	 * @throws WebClientResponseException if an error occurs during the HTTP request
-	 */
-	private Mono<BigDecimal> balanceOperation(final String cardId, final BigDecimal amount, final TransactionType type) {
-		final String getCardURL;
-		final Function<BigDecimal, BigDecimal> balanceOperation;
-
-		switch (type) {
-			case SPEND -> {
-				getCardURL = cardServiceBaseUrl + GET_COVERED_CARD_URL + cardId + AMOUNT_QUERY + amount;
-				balanceOperation = balance -> balance.subtract(amount);
-			}
-			case TOPUP -> {
-				getCardURL = cardServiceBaseUrl + CARDS + SLASH + cardId;
-				balanceOperation = balance -> balance.add(amount);
-			}
-			default -> throw new IllegalArgumentException("Unexpected value: " + type);
+			return Mono.error(new RateLimitExceededException("Max 5 spends per minute exceeded for card " + senderCardCode));
 		}
 
-		return webClient.get().uri(getCardURL)
+		final String getSenderCardURL = cardServiceBaseUrl + GET_COVERED_CARD_URL + senderCardCode + AMOUNT_QUERY + amount;
+		final String getRecipientCardURL = cardServiceBaseUrl + CARDS + SLASH + recipientCardCode;
+
+		// Retrieve/validate both cards
+		final Mono<CardDTO> senderCardMono = webClient.get().uri(getSenderCardURL)
 			.retrieve()
 			.bodyToMono(CardDTO.class)
-			.switchIfEmpty(Mono.error(new com.virtualcard.common.error.NotFoundException("Card number: " + cardId + " not found, blocked or insufficient balance")))
+			.switchIfEmpty(Mono.error(new com.virtualcard.common.error.NotFoundException("Sender card number: " + senderCardCode + " not found, blocked or insufficient balance")))
 			.onErrorResume(WebClientResponseException.class, ex -> {
 				handleException(ex);
-				return Mono.empty();
-			})
-			.flatMap(cardDTO -> {
-				final Mono<BigDecimal> atomicBalanceTransaction = atomicBalanceTransaction(cardId, amount, cardDTO, type, balanceOperation);
-				return Mono
-					.from(atomicBalanceTransaction);
+				return Mono.error(ex);
 			});
+		final Mono<CardDTO> recipientCardMono = webClient.get().uri(getRecipientCardURL)
+			.retrieve()
+			.bodyToMono(CardDTO.class)
+			.switchIfEmpty(Mono.error(new com.virtualcard.common.error.NotFoundException("Recipient card number: " + recipientCardCode + " not found")))
+			.onErrorResume(WebClientResponseException.class, ex -> {
+				handleException(ex);
+				return Mono.error(ex);
+			});
+
+		return Mono.zip(senderCardMono, recipientCardMono)
+			.flatMap(tuple -> {
+				final CardDTO senderCard = tuple.getT1();
+				final CardDTO recipientCard = tuple.getT2();
+
+				return atomicBalanceTransaction(senderCard, recipientCard, amount);
+			})
+			.doOnError(e -> counter.decrementAndGet()); // rollback counter on failure
+
 	}
 
 	/**
 	 * Performs an atomic balance transaction by updating the card balance and creating a transaction record.
 	 * If both operations are successful, the new balance is returned.
 	 *
-	 * @param cardId the identifier of the card for which the transaction is being performed
-	 * @param amount the amount involved in the transaction
-	 * @param cardDTO the data transfer object containing card details, including the current balance
-	 * @param type the type of the transaction (e.g., SPEND, TOPUP)
+	 * @param cardId           the identifier of the card for which the transaction is being performed
+	 * @param amount           the amount involved in the transaction
+	 * @param senderCardDTO    the data transfer object containing card details, including the current balance
+	 * @param type             the type of the transaction (e.g., SPEND, TOPUP)
 	 * @param balanceOperation a function that calculates the new balance based on the current balance
 	 * @return a Mono emitting the new card balance after the transaction is successfully processed
 	 */
-	private Mono<BigDecimal> atomicBalanceTransaction(
-			final String cardId,
-			final BigDecimal amount,
-			final CardDTO cardDTO,
-			final TransactionType type,
-			final Function<BigDecimal, BigDecimal> balanceOperation) {
+	@Transactional
+	private Mono<Void> atomicBalanceTransaction(
+			final CardDTO senderCardDTO,
+			final CardDTO recipientCardDTO,
+			final BigDecimal amount) {
 
-		final BigDecimal newBalance = balanceOperation.apply(cardDTO.getBalance());
-		final String updateBalanceURL = cardServiceBaseUrl + CARDS + SLASH + cardId + UPDATE_BALANCE;
+		final BigDecimal newSenderBalance = senderCardDTO.getBalance().subtract(amount);
+		final BigDecimal newRecipientBalance = recipientCardDTO.getBalance().add(amount);
+		final Long senderCardId = senderCardDTO.getId();
+		final Long recipientCardId = recipientCardDTO.getId();
 
-		final UpdateBalanceRequest updateBalanceRequest = new UpdateBalanceRequest(newBalance);
-		final CreateTransactionRequest createTransactionRequest = new CreateTransactionRequest(cardId, amount, type);
+		// Create the URLs
+		final String updateSenderBalanceURL = cardServiceBaseUrl + CARDS + SLASH + senderCardId + UPDATE_BALANCE;
+		final String updateRecipientBalanceURL = cardServiceBaseUrl + CARDS + SLASH + recipientCardId + UPDATE_BALANCE;
 
-		final Mono<Void> updateBalance = webClient.put()
-			.uri(updateBalanceURL)
+		final UpdateBalanceRequest updateSenderBalanceRequest = new UpdateBalanceRequest(newSenderBalance);
+		final UpdateBalanceRequest updateRecipientBalanceRequest = new UpdateBalanceRequest(newRecipientBalance);
+		// TODO transaction
+		// type hardcoded
+		// for now
+		final CreateTransactionRequest createTransactionRequest = new CreateTransactionRequest(senderCardId, recipientCardId, amount, TransactionType.TRANSFER);
+
+		// Update sender balance
+		final Mono<Void> updateSenderBalance = webClient.put()
+			.uri(updateSenderBalanceURL)
 			.contentType(MediaType.APPLICATION_JSON)
-			.bodyValue(updateBalanceRequest)
+			.bodyValue(updateSenderBalanceRequest)
 			.retrieve()
 			.bodyToMono(Void.class)
 			.onErrorMap(WebClientResponseException.class, this::handleException);
 
+		// Update recipient balance
+		final Mono<Void> updateRecipientBalance = webClient.put()
+			.uri(updateRecipientBalanceURL)
+			.contentType(MediaType.APPLICATION_JSON)
+			.bodyValue(updateRecipientBalanceRequest)
+			.retrieve()
+			.bodyToMono(Void.class)
+			.onErrorMap(WebClientResponseException.class, this::handleException);
+
+		// Register transaction
 		final Mono<Void> createTransaction = webClient.post()
 			.uri(transactionServiceBaseUrl + TRANSACTIONS)
 			.contentType(MediaType.APPLICATION_JSON)
@@ -199,10 +193,11 @@ public class CardAggregateIntegrationService {
 			.retrieve()
 			.bodyToMono(Void.class)
 			.onErrorMap(WebClientResponseException.class, this::handleException);
-		// only emit if both succeed
-		return updateBalance
-			.then(createTransaction)
-			.thenReturn(newBalance);
+
+		// only emit if all succeed
+		return updateSenderBalance
+			.then(updateRecipientBalance)
+			.then(createTransaction);
 	}
 
 	/**
@@ -211,7 +206,7 @@ public class CardAggregateIntegrationService {
 	 * or logs unexpected errors and rethrows them.
 	 *
 	 * @param ex the exception to be handled, typically of type {@code Throwable}
-	 *           or {@code WebClientResponseException}
+	 *               or {@code WebClientResponseException}
 	 * @return the processed {@code Throwable}, which might be a
 	 *         domain-specific exception such as {@code NotFoundException} or
 	 *         {@code InvalidInputException}, or the original exception if it

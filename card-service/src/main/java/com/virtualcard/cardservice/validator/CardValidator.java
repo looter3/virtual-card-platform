@@ -1,13 +1,13 @@
 package com.virtualcard.cardservice.validator;
 
+import static com.virtualcard.common.enums.CardStatus.BLOCKED;
+
 import java.math.BigDecimal;
 import java.util.function.Predicate;
 
 import org.springframework.stereotype.Component;
 
-import com.jooq.generated.enums.CardStatus;
-import com.jooq.generated.tables.pojos.CardDTO;
-import com.virtualcard.common.lang.BigDecimalUtils;
+import com.virtualcard.common.dto.CardDTO;
 
 import lombok.extern.log4j.Log4j2;
 
@@ -28,10 +28,10 @@ public class CardValidator {
 	 * @param cardId the unique identifier of the card being validated
 	 * @return a {@code Predicate} that evaluates whether a {@code CardDTO} instance is valid
 	 */
-	public Predicate<? super CardDTO> isCardValid(final String cardId) {
+	public Predicate<? super CardDTO> isCardValid() {
 		return cardDTO -> {
-			if (cardDTO.getStatus() == CardStatus.BLOCKED) {
-				log.debug("Card with id: {} is blocked", cardId);
+			if (cardDTO.getStatus() == BLOCKED) {
+				log.debug("Card number: {} is blocked", cardDTO.getCode());
 				return false;
 			}
 			return true;
@@ -45,14 +45,11 @@ public class CardValidator {
 	 * @param amount the amount to check if it can be afforded by the card
 	 * @return a predicate that evaluates if the card has sufficient balance for the specified amount
 	 */
-	public Predicate<? super CardDTO> canAfford(final String cardId, final BigDecimal amount) {
+	public Predicate<? super CardDTO> canAfford(final BigDecimal amount) {
 		return cardDTO -> {
-			// If it's a spend operation check available balance
-			if (BigDecimalUtils.lessThan(cardDTO.getBalance(), amount)) {
-				log.debug("Insufficient balance for cardId: {}, balance: {}, charge: {}", cardId, cardDTO.getBalance(), amount);
-				return false;
-			}
-			return true;
+			final boolean result = cardDTO.getBalance().compareTo(amount) >= 0;
+			log.debug("Checking card {}: balance={} amount={} -> {}", cardDTO.getCode(), cardDTO.getBalance(), amount, result);
+			return result;
 		};
 	}
 

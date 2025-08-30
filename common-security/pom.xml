@@ -1,0 +1,63 @@
+<project>
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.virtualcard</groupId>
+        <artifactId>virtual-card-platform</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>common-security</artifactId>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
+		<dependency>
+		  <groupId>io.jsonwebtoken</groupId>
+		  <artifactId>jjwt-api</artifactId>
+		  <version>0.12.6</version>
+		</dependency>
+		<dependency>
+		  <groupId>io.jsonwebtoken</groupId>
+		  <artifactId>jjwt-impl</artifactId>
+		  <version>0.12.6</version>
+		  <scope>runtime</scope>
+		</dependency>
+		<dependency>
+		  <groupId>io.jsonwebtoken</groupId>
+		  <artifactId>jjwt-jackson</artifactId> <!-- or jjwt-gson if you prefer -->
+		  <version>0.12.6</version>
+		  <scope>runtime</scope>
+		</dependency>
+		        
+    	<dependency>
+	    	<groupId>org.apache.commons</groupId>
+	    	<artifactId>commons-lang3</artifactId>
+		</dependency>
+
+		        
+        <dependency>
+	        <groupId>io.projectreactor</groupId>
+	        <artifactId>reactor-core</artifactId>
+		</dependency>
+
+        <dependency>
+	        <groupId>com.virtualcard</groupId>
+	        <artifactId>common-dto</artifactId>
+	        <version>1.0.0-SNAPSHOT</version>
+		</dependency>
+
+
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        
+    </dependencies>
+
+</project>

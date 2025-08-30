@@ -4,22 +4,27 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.jooq.exception.DataChangedException;
+import org.hibernate.reactive.mutiny.Mutiny;
+import org.hibernate.reactive.mutiny.Mutiny.SessionFactory;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
-import com.jooq.generated.enums.CardStatus;
-import com.jooq.generated.tables.pojos.CardDTO;
-import com.virtualcard.cardservice.repository.CardRepository;
+import com.virtualcard.cardservice.entity.Card;
+import com.virtualcard.cardservice.mapper.CardMapper;
+import com.virtualcard.cardservice.repository.ReactiveCardRepository;
 import com.virtualcard.cardservice.service.CardService;
-import com.virtualcard.common.test.AbstractMySQLTestContainerTest;
+import com.virtualcard.common.dto.CardDTO;
+import com.virtualcard.common.enums.CardStatus;
+import com.virtualcard.common.test.AbstractPostgresReactiveTestContainer;
 
+import jakarta.persistence.OptimisticLockException;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -30,14 +35,21 @@ import reactor.test.StepVerifier;
  *
  */
 @SpringBootTest
+@ActiveProfiles("test")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class CardServiceTest extends AbstractMySQLTestContainerTest {
+class CardServiceTest extends AbstractPostgresReactiveTestContainer {
 
 	@Autowired
-	private CardRepository repository;
+	private Mutiny.SessionFactory sessionFactory;
+
+	@Autowired
+	private ReactiveCardRepository repository;
 
 	@Autowired
 	private CardService service;
+
+	@Autowired
+	private CardMapper mapper;
 
 	/**
 	 * Tests the behavior of the `getValidCard` method to ensure it filters out blocked cards.
@@ -51,11 +63,10 @@ class CardServiceTest extends AbstractMySQLTestContainerTest {
 	 */
 	@Test
 	void getValidCard_shouldFilterBlockedCard() {
-		final CardDTO blockedCard = new CardDTO("123", "Alice", BigDecimal.valueOf(100), LocalDateTime.now(), CardStatus.BLOCKED, 1);
 
-		repository.insertCardFromDTO(blockedCard);
+		final CardDTO blockedCard = createAndReturnCard(BigDecimal.valueOf(100), CardStatus.BLOCKED);
 
-		StepVerifier.create(service.getValidCard(blockedCard.getId()))
+		StepVerifier.create(service.getValidCard(blockedCard.getCode()))
 			.expectNextCount(0) // no card returned
 			.verifyComplete();
 	}
@@ -71,15 +82,17 @@ class CardServiceTest extends AbstractMySQLTestContainerTest {
 	 *
 	 * Expected behavior:
 	 * - The method emits the card through its Mono stream and completes successfully when the card's balance
-	 *   is sufficient to meet the required amount.
+	 * is sufficient to meet the required amount.
 	 */
 	@Test
 	void getValidCoveredCard_shouldReturnCard_whenBalanceSufficient() {
-		final CardDTO card = createAndReturnCard("", BigDecimal.valueOf(100));
+		final CardDTO card = createAndReturnCard(BigDecimal.valueOf(100), CardStatus.ACTIVE);
 
-		StepVerifier.create(service.getValidCoveredCard(card.getId(), BigDecimal.valueOf(50)))
-			.expectNext(card)
+		StepVerifier.create(service.getValidCoveredCard(card.getCode(), BigDecimal.valueOf(50)))
+			.expectNextMatches(c -> c.getCode().equals(card.getCode()) &&
+					c.getBalance().compareTo(card.getBalance()) == 0)
 			.verifyComplete();
+
 	}
 
 	/**
@@ -96,9 +109,9 @@ class CardServiceTest extends AbstractMySQLTestContainerTest {
 	 */
 	@Test
 	void getValidCoveredCard_shouldNotReturnCard_whenBalanceInsufficient() {
-		final CardDTO card = createAndReturnCard("", BigDecimal.valueOf(50));
+		final CardDTO card = createAndReturnCard(BigDecimal.valueOf(50), CardStatus.ACTIVE);
 
-		StepVerifier.create(service.getValidCoveredCard(card.getId(), BigDecimal.valueOf(100)))
+		StepVerifier.create(service.getValidCoveredCard(card.getCode(), BigDecimal.valueOf(100)))
 			.expectNextCount(0) // no card returned
 			.verifyComplete(); // balance too low
 	}
@@ -121,11 +134,13 @@ class CardServiceTest extends AbstractMySQLTestContainerTest {
 	 */
 	@Test
 	void updateBalance_shouldCallRepositoryWithCorrectVersion() {
-		final CardDTO card = createAndReturnCard("Dana", new BigDecimal("50.00"));
+		final CardDTO card = createAndReturnCard(new BigDecimal("50.00"), CardStatus.ACTIVE);
 
 		StepVerifier.create(
 				service.updateBalance(card.getId(), new BigDecimal("75.00"))
-					.then(Mono.defer(() -> repository.getCard(card.getId()).map(CardDTO::getVersion))) // Reactive check
+					.then(Mono.defer(() -> Mono.fromCompletionStage(repository.findById(card.getId())
+						.map(Card::getVersion)
+						.subscribeAsCompletionStage()))) // Reactive check
 		)
 			.expectNext(1) // Ensure version was incremented
 			.verifyComplete();
@@ -142,18 +157,18 @@ class CardServiceTest extends AbstractMySQLTestContainerTest {
 	 * An exception is captured when a conflict arises due to concurrent updates on the same entity.
 	 *
 	 * @throws InterruptedException if the thread execution is interrupted while waiting for
-	 *                              the concurrent tasks to complete.
+	 *                                  the concurrent tasks to complete.
 	 */
 	@Test
 	void concurrentUpdates_shouldTriggerOptimisticLocking() throws InterruptedException {
-		final CardDTO card = createAndReturnCard("Alice", new BigDecimal("50.00"));
+		final CardDTO card = createAndReturnCard(new BigDecimal("50.00"), CardStatus.ACTIVE);
 
 		// Define two tasks to update the same record in parallel
 		final AtomicReference<Throwable> errorHolder = new AtomicReference<>();
 
 		final Runnable update1 = () -> {
 			try {
-				repository.updateBalanceByCardId(card.getId(), new BigDecimal("60.00"))
+				Mono.fromCompletionStage(repository.updateCardBalance(card.getId(), new BigDecimal("60.00")).subscribeAsCompletionStage())
 					.block();
 			} catch (final Throwable e) {
 				errorHolder.set(e); // Capture exception for assertion later
@@ -162,7 +177,7 @@ class CardServiceTest extends AbstractMySQLTestContainerTest {
 
 		final Runnable update2 = () -> {
 			try {
-				repository.updateBalanceByCardId(card.getId(), new BigDecimal("70.00"))
+				Mono.fromCompletionStage(repository.updateCardBalance(card.getId(), new BigDecimal("70.00")).subscribeAsCompletionStage())
 					.block();
 			} catch (final Throwable e) {
 				errorHolder.set(e); // Capture exception for assertion later
@@ -179,23 +194,36 @@ class CardServiceTest extends AbstractMySQLTestContainerTest {
 		thread1.join();
 		thread2.join();
 
-		// Assert that at least one thread encountered a DataChangedException
+		// Assert that at least one thread encountered a OptimisticLockException
 		assertNotNull(errorHolder.get());
-		assertTrue(errorHolder.get() instanceof DataChangedException);
+		assertTrue(errorHolder.get() instanceof OptimisticLockException);
 	}
 
 	/**
 	 * Creates a new card with the given cardholder name and initial balance,
 	 * stores it in the repository, and retrieves it using its unique identifier.
 	 *
-	 * @param cardHoalder the name of the cardholder to associate with the card
 	 * @param initialAmount the initial monetary balance to set on the card
 	 * @return the newly created card as a {@link CardDTO} instance
 	 */
-	private CardDTO createAndReturnCard(final String cardHoalder, final BigDecimal initialAmount) {
-		final String id = UUID.randomUUID().toString();
-		repository.insertCardWithId(id, cardHoalder, initialAmount).block();
-		return repository.getCard(id).block();
+	private CardDTO createAndReturnCard(final BigDecimal initialAmount, final CardStatus status) {
+		final String code = UUID.randomUUID().toString();
+		final Card card = new Card();
+		card.setUserId(1L);
+		card.setCode(code);
+		card.setBalance(initialAmount);
+		card.setCreatedAt(Instant.now());
+		card.setStatus(status);
+
+		return repository.save(card) // returns Uni<Card>
+			.flatMap(savedCard -> repository.findByCode(savedCard.getCode()))
+			.map(mapper::entityToDTO)
+			.await().indefinitely(); // block only for test setup
+	}
+
+	@Override
+	protected SessionFactory getSessionFactory() {
+		return this.sessionFactory;
 	}
 
 }

@@ -1,0 +1,80 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.virtualcard</groupId>
+        <artifactId>virtual-card-platform</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+ 
+    <artifactId>common-spring-data</artifactId>
+
+	<dependencies>
+		
+	    <!-- Spring Boot core -->
+	    <!--dependency>
+	        <groupId>org.springframework.boot</groupId>
+	        <artifactId>spring-boot-starter</artifactId>
+	    </dependency -->
+			
+		<!-- Hibernate Reactive Core -->
+		<dependency>
+		    <groupId>org.hibernate.reactive</groupId>
+		    <artifactId>hibernate-reactive-core</artifactId>
+		    <version>2.4.1.Final</version> <!-- upgrade to 2.4.1 or latest -->
+		</dependency>
+		
+		<!-- PostgreSQL Vert.x reactive driver -->
+		<dependency>
+		    <groupId>io.vertx</groupId>
+		    <artifactId>vertx-pg-client</artifactId>
+		    <version>4.5.9</version> <!-- latest 4.x version -->
+		</dependency>
+		
+		<dependency>
+		    <groupId>com.ongres.scram</groupId>
+		    <artifactId>client</artifactId>
+		    <version>2.1</version>
+		</dependency>
+				
+		<!-- Mutiny API for reactive programming -->
+		<dependency>
+		    <groupId>io.smallrye.reactive</groupId>
+		    <artifactId>mutiny</artifactId>
+		    <version>2.6.0</version> <!-- upgrade to latest 2.6.x or newer -->
+		</dependency>
+
+        <!-- PostgreSQL JDBC (Hibernate needs it for schema validation/migration) -->
+	    <!--dependency>
+	        <groupId>org.postgresql</groupId>
+	        <artifactId>postgresql</artifactId>
+	        <scope>runtime</scope>
+	    </dependency -->
+	
+		<!--dependency>
+		    <groupId>org.springframework.boot</groupId>
+		    <artifactId>spring-boot-starter-data-r2dbc</artifactId>
+		</dependency -->
+		
+        <!-- PostgreSQL R2DBC (reactive) -->
+		<!--dependency>
+		    <groupId>org.postgresql</groupId>
+		    <artifactId>r2dbc-postgresql</artifactId>
+		    <scope>runtime</scope>
+		</dependency -->
+
+        <!-- MySQL specific dependencies -->
+        <!--dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.asyncer</groupId>
+            <artifactId>r2dbc-mysql</artifactId>
+            <scope>runtime</scope>
+        </dependency -->
+	</dependencies>
+
+
+</project>

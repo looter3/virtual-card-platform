@@ -1,0 +1,16 @@
+<persistence xmlns="https://jakarta.ee/xml/ns/persistence" version="3.0">
+    <persistence-unit name="default">
+        <provider>org.hibernate.reactive.provider.ReactivePersistenceProvider</provider>
+        <class>com.virtualcard.cardservice.entity.Card</class>
+        <class>com.virtualcard.transactionservice.entity.Transaction</class>
+        <class>com.virtualcard.user_service.entity.User</class>
+        <properties>
+            <property name="jakarta.persistence.jdbc.url" value="postgresql://localhost:5432/card_system"/>
+            <property name="jakarta.persistence.jdbc.user" value="postgres"/>
+            <property name="jakarta.persistence.jdbc.password" value="PostPa$$469"/>
+            <property name="hibernate.hbm2ddl.auto" value="update"/>
+            <property name="hibernate.show_sql" value="true"/>
+            <property name="hibernate.format_sql" value="true"/>
+        </properties>
+    </persistence-unit>
+</persistence>

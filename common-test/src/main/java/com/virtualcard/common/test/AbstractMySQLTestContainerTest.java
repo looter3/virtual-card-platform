@@ -1,28 +1,13 @@
 package com.virtualcard.common.test;
 
-import static com.virtualcard.common.lang.LangConstants.COLON;
-import static com.virtualcard.common.lang.LangConstants.SEMICOLON;
-import static com.virtualcard.common.lang.LangConstants.SLASH;
-
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Objects;
-
-import org.jooq.DSLContext;
-import org.junit.jupiter.api.BeforeAll;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.containers.MySQLContainer;
-
-import lombok.extern.log4j.Log4j2;
-
 /**
  * @author Lorenzo Leccese
  *
  *         9 giu 2025
  *
  */
+/*-
+ * TODO FIX THIS
 @Log4j2
 public abstract class AbstractMySQLTestContainerTest {
 
@@ -38,7 +23,7 @@ public abstract class AbstractMySQLTestContainerTest {
 	private static final String SPRING_DATASOURCE_URL = "spring.datasource.url";
 
 	@Autowired
-	protected DSLContext dsl;
+	private DatabaseClient databaseClient;
 
 	@SuppressWarnings("resource")
 	static final MySQLContainer<?> mysql = new MySQLContainer<>(MYSQL_IMG_VERSION)
@@ -62,6 +47,31 @@ public abstract class AbstractMySQLTestContainerTest {
 	}
 
 	private void setupSchema() throws IOException {
+		try {
+			final String schema = new String(
+					Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream(SCHEMA_SQL))
+						.readAllBytes(),
+					StandardCharsets.UTF_8);
+
+			final String[] statements = schema.split(";");
+			for (final String statement : statements) {
+				if (!statement.trim().isEmpty()) {
+					databaseClient.sql(statement.trim())
+						.fetch()
+						.rowsUpdated()
+						.block(); // blocking for test setup only
+				}
+			}
+		} catch (final IOException e) {
+			throw new RuntimeException("Failed test setup", e);
+		}
+	}
+
+
+	JOOQ
+	@Autowired
+	protected DSLContext dsl;
+	private void setupSchema() throws IOException {
 
 		final String schema = new String(
 				Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream(SCHEMA_SQL))
@@ -76,7 +86,6 @@ public abstract class AbstractMySQLTestContainerTest {
 			}
 		}
 	}
-
 	@DynamicPropertySource
 	static void overrideProperties(final DynamicPropertyRegistry registry) {
 
@@ -86,4 +95,6 @@ public abstract class AbstractMySQLTestContainerTest {
 		registry.add(SPRING_DATASOURCE_PASSWORD, mysql::getPassword);
 	}
 
+
 }
+*/

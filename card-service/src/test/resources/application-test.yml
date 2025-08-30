@@ -1,0 +1,17 @@
+eureka:
+  client:
+    enabled: false
+    register-with-eureka: false
+    fetch-registry: false
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/card_system
+    username: test
+    password: test
+
+hibernate:
+  reactive:
+    dialect: org.hibernate.dialect.PostgreSQLDialect
+    ddl-auto: create-drop # creates schema from entities
+

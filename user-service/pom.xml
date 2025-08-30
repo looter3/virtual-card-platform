@@ -1,0 +1,94 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.virtualcard</groupId>
+        <artifactId>virtual-card-platform</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>user-service</artifactId>
+
+    <dependencies>
+	    <dependency>
+      		<groupId>org.springframework.boot</groupId>
+      		<artifactId>spring-boot-starter</artifactId>
+    	</dependency>
+    	  	
+    	<dependency>
+      		<groupId>org.springframework.boot</groupId>
+      		<artifactId>spring-boot-starter-webflux</artifactId>
+    	</dependency>
+    	<dependency>
+  			<groupId>org.springdoc</groupId>
+  			<artifactId>springdoc-openapi-starter-webflux-ui</artifactId>
+  			<version>2.8.4</version>
+		</dependency>
+		
+		<dependency>
+		  <groupId>org.springframework.cloud</groupId>
+		  <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+		</dependency>
+
+    	<dependency>
+    		<groupId>com.virtualcard</groupId>
+    		<artifactId>common-services</artifactId>
+    		<version>1.0.0-SNAPSHOT</version>
+    	</dependency>
+    	
+    	<dependency>
+    		<groupId>com.virtualcard</groupId>
+    		<artifactId>common-lang</artifactId>
+    		<version>1.0.0-SNAPSHOT</version>
+    	</dependency>
+
+    	<dependency>
+    		<groupId>com.virtualcard</groupId>
+    		<artifactId>common-test</artifactId>
+    		<version>1.0.0-SNAPSHOT</version>
+    	</dependency>
+		
+    </dependencies>
+    
+    <!-- TODO Common with all services create a common-services-->
+  	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<annotationProcessorPaths>
+			            <path>
+			                <groupId>org.mapstruct</groupId>
+			                <artifactId>mapstruct-processor</artifactId>
+			                <version>1.5.3.Final</version>
+			            </path>
+			            <path>
+			                <groupId>org.projectlombok</groupId>
+			                <artifactId>lombok</artifactId>
+			                <version>1.18.32</version>
+			            </path>
+			            <path>
+			                <groupId>org.projectlombok</groupId>
+			                <artifactId>lombok-mapstruct-binding</artifactId>
+			                <version>0.2.0</version>
+			            </path>
+					</annotationProcessorPaths>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+    
+</project>

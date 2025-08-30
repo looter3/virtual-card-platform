@@ -25,12 +25,18 @@
     <module>card-service</module>
     <module>transaction-service</module>
     <module>discovery-server</module>
+    <module>edge-server</module>
+    <module>user-service</module>
     <!-- Common utils -->
     <module>common-dto</module>
-    <module>common-persistence</module>
     <module>common-error</module>
     <module>common-lang</module>
+    <!--module>common-persistence-jooq</module -->
+    <module>common-security</module>
     <module>common-test</module>
+    <module>common-services</module>
+    <module>common-spring-data</module>
+    <module>user-service-integration-common</module>
   </modules>
   
   <dependencies>
@@ -40,36 +46,9 @@
       <artifactId>lombok</artifactId>
       <optional>true</optional>
     </dependency>
-    <dependency>
-      <groupId>io.projectreactor</groupId>
-      <artifactId>reactor-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-    
+
   </dependencies>
   
-  	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>org.springframework.cloud</groupId>
-				<artifactId>spring-cloud-dependencies</artifactId>
-				<version>${spring-cloud.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-		    <dependency>
-		      <groupId>org.testcontainers</groupId>
-		      <artifactId>testcontainers-bom</artifactId>
-		      <version>1.19.0</version>
-		      <type>pom</type>
-		      <scope>import</scope>
-		    </dependency>
-		</dependencies>
-	</dependencyManagement>
+
   
 </project>

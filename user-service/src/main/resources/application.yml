@@ -1,0 +1,47 @@
+
+# Spring
+spring:
+  application:
+    name: user-service
+  main:
+    web-application-type: reactive
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+# Hibernate config
+hibernate:
+  connection:
+    url: vertx-reactive:postgresql://localhost:5432/card_system
+    username: postgres
+    password: PostPa$$469
+  dialect: org.hibernate.dialect.PostgreSQLDialect
+  show_sql: true
+  format_sql: true
+
+# Spring doc config
+springdoc:
+  packagesToScan: com.virtualcard.user_service
+  pathsToMatch: /**
+
+# Local server config
+server:
+  port: 8009
+  error:include-message: always
+  
+# Eureka
+app:eureka-server: localhost
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://${app:eureka-server}:8761/eureka/
+    initialInstanceInfoReplicationIntervalSeconds: 5
+    registryFetchIntervalSeconds: 5
+  instance:
+    leaseRenewalIntervalInSeconds: 5
+    leaseExpirationDurationInSeconds: 5
+
+logging:
+  level:
+    org.jooq.tools.LoggerListener: DEBUG

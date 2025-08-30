@@ -3,7 +3,6 @@
 spring:
   application:
     name: card-aggregate-service
-#  data:
 
 # Spring doc config
 springdoc:
